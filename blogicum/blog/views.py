@@ -1,37 +1,21 @@
-from datetime import datetime
-
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.utils.timezone import now
 
+from .common import filter_objects
+from .constants import MAX_POSTS_PAGE
 from .models import Category, Post
 
 
 def index(request: HttpRequest) -> HttpResponse:
     """Функция вызова шаблона (главная страница)."""
-    posts = Post.objects.select_related(
-        'author',
-        'category',
-        'location'
-    ).filter(
-        is_published=True,
-        pub_date__date__lte=datetime.now(),
-        category__is_published=True
-    ).order_by('-pub_date')[0:5]
+    posts = filter_objects(Post.objects)[:MAX_POSTS_PAGE]
     return render(request, 'blog/index.html', {'post_list': posts})
 
 
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     """Функция вызова шаблона (полная информация постов)."""
-    post = get_object_or_404(Post.objects.select_related(
-        'author',
-        'category',
-        'location'
-    ),
-        is_published=True,
-        category__is_published=True,
-        pub_date__date__lte=datetime.now(),
-        pk=post_id
-    )
+    post = get_object_or_404(filter_objects(Post.objects), pk=post_id)
     return render(request, 'blog/detail.html', {'post': post})
 
 
@@ -42,8 +26,8 @@ def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
         is_published=True,
         slug=category_slug
     )
-    post_list = category.category_posts.filter(
-        pub_date__date__lte=datetime.now(),
+    post_list = category.posts.filter(
+        pub_date__date__lte=now(),
         is_published=True
     )
     return render(request, 'blog/category.html', {
