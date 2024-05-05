@@ -1,8 +1,8 @@
 from django.utils.timezone import now
 
 
-def filter_objects(objs):
-    """Общая функция выборки постов"""
+def filter_objects_published(objs):
+    """Общая функция выборки по публикации."""
     return objs.select_related(
         'author',
         'category',

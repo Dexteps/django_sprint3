@@ -34,7 +34,7 @@ class Location(PublishedAndCreatedModel, models.Model):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self) -> str:
-        return self.name
+        return self.name[:MAX_LENGTH_RENDER_TITLE]
 
 
 class Post(PublishedAndCreatedModel, models.Model):
@@ -73,4 +73,4 @@ class Post(PublishedAndCreatedModel, models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self) -> str:
-        return self.title
+        return self.title[:MAX_LENGTH_RENDER_TITLE]
